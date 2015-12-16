@@ -241,7 +241,7 @@ unsigned int tokenize( const string_type& str, std::vector<string_type>& tokens,
 template <class string_type>
 string_type trim_whitespaces(string_type str)
 {
-    while (!str.empty() && IsSpace(str[0])) str.erase(0);
+    while (!str.empty() && IsSpace(str[0])) str.erase((typename string_type::size_type) 0);
     while (!str.empty() && IsSpace(str[str.length() - 1])) str.erase(str.length() - 1);
     return str;
 }

@@ -8,6 +8,7 @@ FILE_LIST := $(wildcard $(LOCAL_PATH)/$(ASSIMP_SRC_DIR)/*.cpp)
 FILE_LIST += $(wildcard $(LOCAL_PATH)/contrib/openddlparser/code/*.cpp)
 FILE_LIST += $(wildcard $(LOCAL_PATH)/contrib/unzip/*.c)
 FILE_LIST += $(wildcard $(LOCAL_PATH)/contrib/poly2tri/poly2tri/*/*.cc)
+FILE_LIST += $(wildcard $(LOCAL_PATH)/port/AndroidJNI/*.cpp)
 
 LOCAL_SRC_FILES := $(FILE_LIST:$(LOCAL_PATH)/%=%)
 
@@ -103,6 +104,7 @@ ASSIMP_FLAGS_3_1 = $(ASSIMP_FLAGS_3_0) # -DASSIMP_BUILD_BLENDER_DEBUG
 LOCAL_CFLAGS += $(ASSIMP_FLAGS_3_1) -DASSIMP_BUILD_NO_EXPORT -DOPENDDL_NO_USE_CPP11 $(DontBuildImporters)  # $(DontBuildProcess) 
 
 LOCAL_C_INCLUDES += $(LOCAL_PATH)/include $(LOCAL_PATH)/$(ASSIMP_SRC_DIR)/BoostWorkaround $(LOCAL_PATH)/contrib/openddlparser/include ./ 
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/contrib/rapidjson/include
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include $(LOCAL_PATH)/$(ASSIMP_SRC_DIR)/BoostWorkaround
 
 include $(BUILD_STATIC_LIBRARY)
@@ -113,7 +115,7 @@ LOCAL_MODULE    := assimp
 LOCAL_CFLAGS += -UASSIMP_BUILD_DLL_EXPORT
 LOCAL_WHOLE_STATIC_LIBRARIES = assimp_static
 
-LOCAL_LDLIBS := -lz
+LOCAL_LDLIBS := -lz -llog -landroid
 
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/include $(LOCAL_PATH)/$(ASSIMP_SRC_DIR)/BoostWorkaround
 include $(BUILD_SHARED_LIBRARY)
