@@ -595,6 +595,8 @@ const aiScene* Importer::ReadFile( const char* _pFile, unsigned int pFlags)
     try
 #endif // ! ASSIMP_CATCH_GLOBAL_EXCEPTIONS
     {
+      DefaultLogger::get()->debug("..................................................");
+
         // Check whether this Importer instance has already loaded
         // a scene. In this case we need to delete the old one
         if (pimpl->mScene)  {
@@ -638,6 +640,8 @@ const aiScene* Importer::ReadFile( const char* _pFile, unsigned int pFlags)
                         break;
                     }
                 }
+
+                DefaultLogger::get()->debug("got base importer: " + pFile.substr(0, s));
             }
             // Put a proper error message if no suitable importer was found
             if( !imp)   {
@@ -660,10 +664,13 @@ const aiScene* Importer::ReadFile( const char* _pFile, unsigned int pFlags)
         DefaultLogger::get()->info("Found a matching importer for this file format");
         pimpl->mProgressHandler->UpdateFileRead( 0, fileSize );
 
+        DefaultLogger::get()->debug(".......... [Importer] " + std::string(imp->GetInfo()->mName));
+
         if (profiler) {
             profiler->BeginRegion("import");
         }
 
+        DefaultLogger::get()->debug(".......... [Importer] imp->ReadFile");
         pimpl->mScene = imp->ReadFile( this, pFile, pimpl->mIOHandler);
         pimpl->mProgressHandler->UpdateFileRead( fileSize, fileSize );
 
@@ -704,6 +711,7 @@ const aiScene* Importer::ReadFile( const char* _pFile, unsigned int pFlags)
         // if failed, extract the error string
         else if( !pimpl->mScene) {
             pimpl->mErrorString = imp->GetErrorText();
+            DefaultLogger::get()->debug(".......... [Importer] " + pimpl->mErrorString);
         }
 
         // clear any data allocated by post-process steps
@@ -712,10 +720,14 @@ const aiScene* Importer::ReadFile( const char* _pFile, unsigned int pFlags)
         if (profiler) {
             profiler->EndRegion("total");
         }
+
+        DefaultLogger::get()->debug(".................................................. (end)");
     }
 #ifdef ASSIMP_CATCH_GLOBAL_EXCEPTIONS
     catch (std::exception &e)
     {
+      DefaultLogger::get()->debug(".......... [Importer] exception: " + std::string(e.what()));
+
 #if (defined _MSC_VER) &&   (defined _CPPRTTI)
         // if we have RTTI get the full name of the exception that occured
         pimpl->mErrorString = std::string(typeid( e ).name()) + ": " + e.what();

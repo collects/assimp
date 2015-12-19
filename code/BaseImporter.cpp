@@ -79,6 +79,8 @@ BaseImporter::~BaseImporter()
 // Imports the given file and returns the imported data.
 aiScene* BaseImporter::ReadFile(const Importer* pImp, const std::string& pFile, IOSystem* pIOHandler)
 {
+  DefaultLogger::get()->debug(".......... [BaseImporter] ReadFile: " + pFile );
+
     m_progress = pImp->GetProgressHandler();
     ai_assert(m_progress);
 

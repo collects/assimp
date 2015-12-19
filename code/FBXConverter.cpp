@@ -2086,7 +2086,7 @@ private:
                     min_time);
             }
         }
-        catch(std::exception&) {
+        catch(std::exception& e) {
             std::for_each(node_anims.begin(), node_anims.end(), Util::delete_fun<aiNodeAnim>());
             throw;
         }
@@ -2139,7 +2139,6 @@ private:
         double& max_time,
         double& min_time)
     {
-
         NodeMap node_property_map;
         ai_assert(curves.size());
 
@@ -2241,6 +2240,7 @@ private:
             else {
                 node_anims.push_back(nd);
             }
+
             return;
         }
 
@@ -2431,6 +2431,8 @@ private:
         double& max_time,
         double& min_time)
     {
+      //DefaultLogger::get()->debug(".......... [FBXConverter] Converter::GenerateRotationNodeAnim: " + name);
+
         ScopeGuard<aiNodeAnim> na(new aiNodeAnim());
         na->mNodeName.Set(name);
 
@@ -2660,6 +2662,7 @@ private:
             }
 
         }
+
         return na.dismiss();
     }
 
@@ -2806,14 +2809,29 @@ private:
                 }
 
                 const size_t id0 = next_pos[i]>0 ? next_pos[i]-1 : 0;
-                const size_t id1 = next_pos[i]==ksize ? ksize-1 : next_pos[i];
+                const size_t id1 = next_pos[i]==ksize && ksize>0 ? ksize-1 : next_pos[i];
+
+                KeyValueList::value_type valueA, valueB;
+                KeyTimeList::value_type timeA, timeB;
+
+                /*
+                  {
+                    std::ostringstream oss;
+                    oss
+                      << "id0, id1: " << id0 << ", " << id1 << "; " << next_pos[i] << "; "
+                      << kfl.get<0>()->size() << ", " << kfl.get<1>()->size() << ", " << kfl.get<2>()
+                      ;
+                    DefaultLogger::get()->debug(".......... [FBXConverter] Converter::InterpolateKeys: " + oss.str() );
+                  }
+                */
 
                 // use lerp for interpolation
-                const KeyValueList::value_type valueA = kfl.get<1>()->at(id0);
-                const KeyValueList::value_type valueB = kfl.get<1>()->at(id1);
+                  
+                if (id0 < kfl.get<1>()->size()) valueA = kfl.get<1>()->at(id0);
+                if (id1 < kfl.get<1>()->size()) valueB = kfl.get<1>()->at(id1);
 
-                const KeyTimeList::value_type timeA = kfl.get<0>()->at(id0);
-                const KeyTimeList::value_type timeB = kfl.get<0>()->at(id1);
+                if (id0 < kfl.get<0>()->size()) timeA = kfl.get<0>()->at(id0);
+                if (id1 < kfl.get<0>()->size()) timeB = kfl.get<0>()->at(id1);
 
                 // do the actual interpolation in double-precision arithmetics
                 // because it is a bit sensitive to rounding errors.
@@ -2821,6 +2839,7 @@ private:
                 const float interpValue = static_cast<float>(valueA + (valueB - valueA) * factor);
 
                 result[kfl.get<2>()] = interpValue;
+
             }
 
             // magic value to convert fbx times to seconds
@@ -3008,8 +3027,9 @@ private:
 
         na->mNumRotationKeys = static_cast<unsigned int>(keys.size());
         na->mRotationKeys = new aiQuatKey[keys.size()];
-        if (keys.size() > 0)
+        if (keys.size() > 0) {
             InterpolateKeys(na->mRotationKeys, keys, inputs, aiVector3D(0.0f, 0.0f, 0.0f), maxTime, minTime, order);
+        }
     }
 
 
